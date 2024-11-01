@@ -14,6 +14,7 @@ void GetCodePageInfo(UINT codePage, LPWSTR charSetName, size_t charSetNameSize) 
 
 // Callback function for EnumSystemLocalesEx
 BOOL CALLBACK LocaleEnumProc(LPWSTR localeName, DWORD dwFlags, LPARAM lparam) {
+    UNREFERENCED_PARAMETER(dwFlags);
     FILE* fp = (FILE*)lparam;
     WCHAR codePageStr[6] = {0};
     WCHAR nativeDisplayName[256] = {0};
@@ -62,7 +63,7 @@ BOOL CALLBACK LocaleEnumProc(LPWSTR localeName, DWORD dwFlags, LPARAM lparam) {
     }
 
     // Print CSV line, escaping quotes in strings
-    fprintf(fp, "\"%ls\",\"0x%04X\",\"%ls\",\"%ls\",\"%ls\",\"%ls\",\"%ls\",\"%ls\",\"%ls\",\"%ls\",\"%ls\"\n",
+    fprintf(fp, "\"%ls\",\"0x%04lX\",\"%ls\",\"%ls\",\"%ls\",\"%ls\",\"%ls\",\"%ls\",\"%ls\",\"%ls\"\n",
             localeName,           // Locale name (e.g., en-US)
             lcid,                 // LCID in hex
             codePageStr,         // ANSI code page
@@ -79,10 +80,11 @@ BOOL CALLBACK LocaleEnumProc(LPWSTR localeName, DWORD dwFlags, LPARAM lparam) {
 
 int main() {
     FILE* fp;
+    errno_t err;
     
     // Create or overwrite the CSV file
-    fp = fopen("windows_locales_extended.csv", "w, ccs=UTF-8");
-    if (!fp) {
+    err = fopen_s(&fp, "windows_locales_extended.csv", "w, ccs=UTF-8");
+    if (err != 0 || !fp) {
         printf("Failed to create output file\n");
         return 1;
     }
