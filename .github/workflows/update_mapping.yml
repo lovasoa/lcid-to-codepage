@@ -1,0 +1,64 @@
+name: Update Windows Locale CSV
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'locale_encoding.c'
+      - '.github/workflows/**'
+  workflow_dispatch:  # Allows manual triggering
+
+jobs:
+  update-csv:
+    runs-on: windows-latest  # We need Windows for the locale APIs
+    permissions:
+      contents: write  # Needed for pushing changes
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Full git history for commits
+    
+    - name: Setup MSVC Developer Command Prompt
+      uses: ilammy/msvc-dev-cmd@v1
+      
+    - name: Compile program
+      run: |
+        cl.exe /nologo /W4 /EHsc locale_encoding.c /Fe:locale_mapper.exe
+      shell: cmd
+    
+    - name: Run locale mapper
+      run: |
+        .\locale_mapper.exe
+      shell: cmd
+    
+    - name: Check for changes
+      id: check_changes
+      run: |
+        if (git status --porcelain windows_locales_extended.csv) {
+          echo "changes=true" >> $env:GITHUB_OUTPUT
+        } else {
+          echo "changes=false" >> $env:GITHUB_OUTPUT
+        }
+      shell: pwsh
+
+    - name: Configure Git
+      if: steps.check_changes.outputs.changes == 'true'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+
+    - name: Commit and push if changed
+      if: steps.check_changes.outputs.changes == 'true'
+      run: |
+        git add windows_locales_extended.csv
+        git commit -m "chore: Update Windows locale mapping [skip ci]"
+        git push
+      shell: bash
+
+    - name: Upload CSV as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: windows-locales-csv
+        path: windows_locales_extended.csv
+        retention-days: 90
