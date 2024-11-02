@@ -28,13 +28,20 @@ jobs:
       shell: cmd
     
     - name: Run locale mapper
+      id: run_mapper
+      continue-on-error: true
       run: |
         reg add "HKLM\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps" /v DumpFolder /t REG_EXPAND_SZ /d "%temp%" /f
         reg add "HKLM\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps" /v DumpType /t REG_DWORD /d 2 /f
-        .\locale_mapper.exe || type "%temp%\*.txt"
+        .\locale_mapper.exe
       shell: cmd
       timeout-minutes: 5
-    
+
+    - name: Extract crash logs
+      if: always()
+      run: type "%temp%\*.txt"
+      shell: cmd
+
     - name: Check for changes
       id: check_changes
       run: |
