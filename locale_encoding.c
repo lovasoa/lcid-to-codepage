@@ -120,11 +120,12 @@ int main() {
     errno_t err;
     
     fprintf(stderr, "[DEBUG] Opening output file: windows_locales_extended.csv\n");
-    err = fopen_s(&fp, "windows_locales_extended.csv", "w");
+    err = _wfopen_s(&fp, L"windows_locales_extended.csv", L"w, ccs=UTF-8");
     if (err != 0 || !fp) {
         fprintf(stderr, "[ERROR] Failed to create output file. Error code: %d\n", err);
         return 1;
     }
+
     fprintf(stderr, "[DEBUG] File opened successfully\n");
 
     fprintf(stderr, "[DEBUG] Writing CSV header\n");
