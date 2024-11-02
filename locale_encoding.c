@@ -127,9 +127,6 @@ int main() {
     }
     fprintf(stderr, "[DEBUG] File opened successfully\n");
 
-    fprintf(stderr, "[DEBUG] Writing UTF-8 BOM\n");
-    fwrite("\xEF\xBB\xBF", 1, 3, fp);
-
     fprintf(stderr, "[DEBUG] Writing CSV header\n");
     fprintf(fp, "\"Locale Name\",\"LCID\",\"ANSI CodePage\",\"ANSI Character Set\",\"OEM CodePage\",\"OEM Character Set\",\"Native Language Name\",\"English Language Name\",\"Country\",\"Script\"\n");
     if (ferror(fp)) {
