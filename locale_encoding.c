@@ -132,7 +132,17 @@ int main() {
 
     fprintf(stderr, "[DEBUG] Writing CSV header\n");
     fprintf(fp, "\"Locale Name\",\"LCID\",\"ANSI CodePage\",\"ANSI Character Set\",\"OEM CodePage\",\"OEM Character Set\",\"Native Language Name\",\"English Language Name\",\"Country\",\"Script\"\n");
-    fflush(fp);
+    if (ferror(fp)) {
+        fprintf(stderr, "[ERROR] Failed to write CSV header\n");
+        fclose(fp);
+        return 1;
+    }
+
+    if (fflush(fp) != 0) {
+        fprintf(stderr, "[ERROR] Failed to flush file buffer. Error: %d\n", ferror(fp));
+        fclose(fp);
+        return 1;
+    }
 
     fprintf(stderr, "[DEBUG] Starting locale enumeration\n");
     fflush(stderr);
