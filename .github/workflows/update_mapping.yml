@@ -24,12 +24,14 @@ jobs:
       
     - name: Compile program
       run: |
-        cl.exe /nologo /W4 /EHsc locale_encoding.c /Fe:locale_mapper.exe
+        cl.exe /nologo /W4 /EHsc /Zi /RTCs /RTC1 /Od /MDd locale_encoding.c /Fe:locale_mapper.exe
       shell: cmd
     
     - name: Run locale mapper
       run: |
-        .\locale_mapper.exe
+        reg add "HKLM\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps" /v DumpFolder /t REG_EXPAND_SZ /d "%temp%" /f
+        reg add "HKLM\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps" /v DumpType /t REG_DWORD /d 2 /f
+        .\locale_mapper.exe || type "%temp%\*.txt"
       shell: cmd
     
     - name: Check for changes
@@ -60,5 +62,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: windows-locales-csv
-        path: windows_locales_extended.csv
+        path: |
+          windows_locales_extended.csv
+          locale_mapper.exe
         retention-days: 90

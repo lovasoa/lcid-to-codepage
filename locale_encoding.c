@@ -5,9 +5,13 @@
 void GetCodePageInfo(UINT codePage, LPWSTR charSetName, size_t charSetNameSize) {
     CPINFOEXW cpInfo = {0};
     
+    fprintf(stderr, "Getting code page info for: %u\n", codePage);
     if (GetCPInfoExW(codePage, 0, &cpInfo)) {
+        fprintf(stderr, "CodePageName length: %zu\n", wcslen(cpInfo.CodePageName));
+        fprintf(stderr, "Target buffer size: %zu\n", charSetNameSize);
         wcscpy_s(charSetName, charSetNameSize, cpInfo.CodePageName);
     } else {
+        fprintf(stderr, "GetCPInfoExW failed. Error: %lu\n", GetLastError());
         wcscpy_s(charSetName, charSetNameSize, L"Unknown");
     }
 }
@@ -16,7 +20,7 @@ void GetCodePageInfo(UINT codePage, LPWSTR charSetName, size_t charSetNameSize) 
 BOOL CALLBACK LocaleEnumProc(LPWSTR localeName, DWORD dwFlags, LPARAM lparam) {
     UNREFERENCED_PARAMETER(dwFlags);
     FILE* fp = (FILE*)lparam;
-    WCHAR codePageStr[6] = {0};
+    WCHAR codePageStr[16] = {0};
     WCHAR nativeDisplayName[256] = {0};
     WCHAR englishLangName[256] = {0};
     WCHAR countryName[256] = {0};
@@ -24,9 +28,12 @@ BOOL CALLBACK LocaleEnumProc(LPWSTR localeName, DWORD dwFlags, LPARAM lparam) {
     WCHAR charSetName[256] = {0};
     LCID lcid;
     
+    fprintf(stderr, "\nProcessing locale: %ls\n", localeName);
+    
     // Convert locale name to LCID
     lcid = LocaleNameToLCID(localeName, 0);
     if (lcid == 0) {
+        fprintf(stderr, "LocaleNameToLCID failed for %ls. Error: %lu\n", localeName, GetLastError());
         return TRUE;
     }
 
@@ -35,8 +42,11 @@ BOOL CALLBACK LocaleEnumProc(LPWSTR localeName, DWORD dwFlags, LPARAM lparam) {
                       LOCALE_IDEFAULTANSICODEPAGE,
                       codePageStr,
                       sizeof(codePageStr)/sizeof(WCHAR))) {
+        fprintf(stderr, "GetLocaleInfoW failed for ANSI codepage. Error: %lu\n", GetLastError());
         return TRUE;
     }
+
+    fprintf(stderr, "ANSI CodePage: %ls\n", codePageStr);
 
     // Skip locales without an ANSI code page
     if (wcscmp(codePageStr, L"0") == 0) {
