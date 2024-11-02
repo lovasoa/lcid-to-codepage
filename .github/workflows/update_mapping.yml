@@ -24,7 +24,7 @@ jobs:
       
     - name: Compile program
       run: |
-        cl.exe /nologo /W4 /EHsc /Zi /RTCs /RTC1 /Od /MDd locale_encoding.c /Fe:locale_mapper.exe
+        cl.exe /nologo /W4 /EHsc /Zi /O2 /MD locale_encoding.c /Fe:locale_mapper.exe
       shell: cmd
     
     - name: Run locale mapper
@@ -33,6 +33,7 @@ jobs:
         reg add "HKLM\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps" /v DumpType /t REG_DWORD /d 2 /f
         .\locale_mapper.exe || type "%temp%\*.txt"
       shell: cmd
+      timeout-minutes: 5
     
     - name: Check for changes
       id: check_changes
