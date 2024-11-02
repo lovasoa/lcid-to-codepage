@@ -100,7 +100,7 @@ BOOL CALLBACK LocaleEnumProc(LPWSTR localeName, DWORD dwFlags, LPARAM lparam) {
     }
 
     fprintf(stderr, "[DEBUG] Writing CSV line for locale %ls\n", localeName);
-    fprintf(fp, "\"%ls\",\"0x%04lX\",\"%ls\",\"%ls\",\"%ls\",\"%ls\",\"%ls\",\"%ls\",\"%ls\",\"%ls\"\n",
+    fprintf(fp, "%ls,0x%04lX,%ls,%ls,%ls,%ls,%ls,%ls,%ls,%ls\n",
             localeName,           // Locale name (e.g., en-US)
             lcid,                 // LCID in hex
             codePageStr,         // ANSI code page
@@ -128,7 +128,7 @@ int main() {
     fprintf(stderr, "[DEBUG] File opened successfully\n");
 
     fprintf(stderr, "[DEBUG] Writing CSV header\n");
-    fprintf(fp, "\"Locale Name\",\"LCID\",\"ANSI CodePage\",\"ANSI Character Set\",\"OEM CodePage\",\"OEM Character Set\",\"Native Language Name\",\"English Language Name\",\"Country\",\"Script\"\n");
+    fprintf(fp, "Locale Name,LCID,ANSI CodePage,ANSI Character Set,OEM CodePage,OEM Character Set,Native Language Name,English Language Name,Country,Script\n");
     if (ferror(fp)) {
         fprintf(stderr, "[ERROR] Failed to write CSV header\n");
         fclose(fp);
