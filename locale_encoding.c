@@ -22,6 +22,17 @@ void GetCodePageInfo(UINT codePage, LPWSTR charSetName, size_t charSetNameSize) 
 BOOL CALLBACK LocaleEnumProc(LPWSTR localeName, DWORD dwFlags, LPARAM lparam) {
     UNREFERENCED_PARAMETER(dwFlags);
     FILE* fp = (FILE*)lparam;
+    
+    if (!localeName || !fp) {
+        fprintf(stderr, "[ERROR] Invalid parameters passed to LocaleEnumProc\n");
+        return FALSE;
+    }
+
+    // Check if this is a replacement locale
+    if (dwFlags & LOCALE_REPLACEMENT) {
+        fprintf(stderr, "[INFO] Locale %ls is a replacement locale\n", localeName);
+    }
+
     WCHAR codePageStr[16] = {0};
     WCHAR nativeDisplayName[256] = {0};
     WCHAR englishLangName[256] = {0};
@@ -81,6 +92,13 @@ BOOL CALLBACK LocaleEnumProc(LPWSTR localeName, DWORD dwFlags, LPARAM lparam) {
         GetCodePageInfo(oemCodePage, oemCharSetName, sizeof(oemCharSetName)/sizeof(WCHAR));
     }
 
+    // Handle specific data types based on flags
+    if (dwFlags & LOCALE_NEUTRALDATA) {
+        fprintf(stderr, "[INFO] Processing neutral locale data for %ls\n", localeName);
+    } else if (dwFlags & LOCALE_SPECIFICDATA) {
+        fprintf(stderr, "[INFO] Processing specific locale data for %ls\n", localeName);
+    }
+
     fprintf(stderr, "[DEBUG] Writing CSV line for locale %ls\n", localeName);
     fprintf(fp, "\"%ls\",\"0x%04lX\",\"%ls\",\"%ls\",\"%ls\",\"%ls\",\"%ls\",\"%ls\",\"%ls\",\"%ls\"\n",
             localeName,           // Locale name (e.g., en-US)
@@ -119,14 +137,25 @@ int main() {
     fprintf(stderr, "[DEBUG] Starting locale enumeration\n");
     fflush(stderr);
 
-    SetLastError(0); // Reset error code before call
-    if (!EnumSystemLocalesEx(LocaleEnumProc, LOCALE_ALL, (LPARAM)fp, NULL)) {
+    DWORD enumFlags = LOCALE_ALL;  // Can be combined with other flags if needed
+    // LOCALE_WINDOWS | LOCALE_NEUTRALDATA | LOCALE_SUPPLEMENTAL
+
+    SetLastError(0);
+    if (!EnumSystemLocalesEx(LocaleEnumProc, enumFlags, (LPARAM)fp, NULL)) {
         DWORD error = GetLastError();
         fprintf(stderr, "[ERROR] EnumSystemLocalesEx failed. Error code: %lu\n", error);
-        if (error == ERROR_INVALID_PARAMETER) {
-            fprintf(stderr, "[ERROR] Invalid parameter passed to EnumSystemLocalesEx\n");
-        } else if (error == ERROR_CALL_NOT_IMPLEMENTED) {
-            fprintf(stderr, "[ERROR] Function not available on this Windows version\n");
+        switch (error) {
+            case ERROR_INVALID_FLAGS:
+                fprintf(stderr, "[ERROR] Invalid flags specified\n");
+                break;
+            case ERROR_INVALID_PARAMETER:
+                fprintf(stderr, "[ERROR] Invalid parameter\n");
+                break;
+            case ERROR_BADDB:
+                fprintf(stderr, "[ERROR] Could not access locale database\n");
+                break;
+            default:
+                fprintf(stderr, "[ERROR] Unknown error occurred\n");
         }
         fclose(fp);
         return 1;
