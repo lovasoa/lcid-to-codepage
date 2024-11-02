@@ -1,6 +1,6 @@
-# Windows Locale and Character Encoding Mapper
+# Windows Locale to Character Encoding Mapping
 
-This tool generates a comprehensive CSV file containing Windows locale information, ANSI/OEM code pages, and character encoding details for all locales installed on your system.
+This tool generates a comprehensive CSV file containing Windows locale information, LCID, ANSI/OEM code pages, and character encoding details for all locales installed on your system.
 
 If you are only interested in the results, see [**windows_locales_extended.csv**](./windows_locales_extended.csv).
 
