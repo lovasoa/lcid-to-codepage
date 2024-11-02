@@ -1,4 +1,4 @@
-﻿"Locale Name","LCID","ANSI CodePage","ANSI Character Set","OEM CodePage","OEM Character Set","Native Language Name","English Language Name","Country","Script"
+"Locale Name","LCID","ANSI CodePage","ANSI Character Set","OEM CodePage","OEM Character Set","Native Language Name","English Language Name","Country","Script"
 "","0x007F","1252","1252  (ANSI - Latin I)","437","437   (OEM - United States)","Invariant Language","Invariant Language","Invariant Country","Latn;"
 "af","0x0436","1252","1252  (ANSI - Latin I)","850","850   (OEM - Multilingual Latin I)","Afrikaans","Afrikaans","South Africa","Latn;"
 "af-ZA","0x0436","1252","1252  (ANSI - Latin I)","850","850   (OEM - Multilingual Latin I)","Afrikaans","Afrikaans","South Africa","Latn;"
