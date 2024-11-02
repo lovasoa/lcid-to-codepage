@@ -111,7 +111,7 @@ BOOL CALLBACK LocaleEnumProc(LPWSTR localeName, DWORD dwFlags, LPARAM lparam) {
             englishLangName,     // Language name in English
             countryName,         // Country name in English
             scriptName);         // Script name
-
+    fflush(fp);
     return TRUE;
 }
 
