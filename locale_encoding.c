@@ -113,14 +113,21 @@ int main() {
     fwrite("\xEF\xBB\xBF", 1, 3, fp);
 
     fprintf(stderr, "[DEBUG] Writing CSV header\n");
-    fprintf(fp, "%s\n", "\"Locale Name\",\"LCID\",\"ANSI CodePage\","
-                       "\"ANSI Character Set\",\"OEM CodePage\","
-                       "\"OEM Character Set\",\"Native Language Name\","
-                       "\"English Language Name\",\"Country\",\"Script\"");
+    fprintf(fp, "\"Locale Name\",\"LCID\",\"ANSI CodePage\",\"ANSI Character Set\",\"OEM CodePage\",\"OEM Character Set\",\"Native Language Name\",\"English Language Name\",\"Country\",\"Script\"\n");
+    fflush(fp);
 
     fprintf(stderr, "[DEBUG] Starting locale enumeration\n");
+    fflush(stderr);
+
+    SetLastError(0); // Reset error code before call
     if (!EnumSystemLocalesEx(LocaleEnumProc, LOCALE_ALL, (LPARAM)fp, NULL)) {
-        fprintf(stderr, "[ERROR] EnumSystemLocalesEx failed. Error code: %lu\n", GetLastError());
+        DWORD error = GetLastError();
+        fprintf(stderr, "[ERROR] EnumSystemLocalesEx failed. Error code: %lu\n", error);
+        if (error == ERROR_INVALID_PARAMETER) {
+            fprintf(stderr, "[ERROR] Invalid parameter passed to EnumSystemLocalesEx\n");
+        } else if (error == ERROR_CALL_NOT_IMPLEMENTED) {
+            fprintf(stderr, "[ERROR] Function not available on this Windows version\n");
+        }
         fclose(fp);
         return 1;
     }
