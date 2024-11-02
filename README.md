@@ -2,6 +2,8 @@
 
 This tool generates a comprehensive CSV file containing Windows locale information, ANSI/OEM code pages, and character encoding details for all locales installed on your system.
 
+If you are only interested in the results, see [**windows_locales_extended.csv**](./windows_locales_extended.csv).
+
 ## What Problem Does It Solve?
 
 When working with international text, legacy applications, or character encoding conversions, you often need to know:
